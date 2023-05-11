@@ -39,22 +39,28 @@ with onto:
     for inst in onto.individuals():
         if inst.attacks:
             inst.is_a.append(attacks.only(OneOf(inst.attacks)))
+        else:
+            inst.is_a.append(attacks.only(Nothing))
         if inst.isAttackedBy:
             inst.is_a.append(isAttackedBy.only(OneOf(inst.isAttackedBy)))
+        else:
+            inst.is_a.append(isAttackedBy.only(Nothing))
 
     # Defining conflict free sets
     for argument_set1 in argument_sets.keys():
-        Cl = types.new_class(f'{argument_set1}ConflictFree', (Thing,))
+        Cl = onto[argument_set1]
+        Cl_cf = types.new_class(f'{argument_set1}ConflictFree', (Cl,))
         complement = []
         for argument_set2 in argument_sets.keys():
             if argument_set1 != argument_set2:
                 complement.append(onto[argument_set2])
-        Cl.equivalent_to.append(onto[argument_set1] & attacks.only(Or(complement)))
+        Cl_cf.equivalent_to.append(Cl & attacks.only(Or(complement)))
 
     # Defining admissible sets
     for argument_set1 in argument_sets.keys():
-        Cl = types.new_class(f'{argument_set1}Admissible', (Thing,))
-        Cl.equivalent_to.append(onto[argument_set1] & isAttackedBy.only(isAttackedBy.some(onto[argument_set1])))
+        Cl_cf = onto[f'{argument_set1}ConflictFree']
+        Cl_adm = types.new_class(f'{argument_set1}Admissible', (Cl_cf,))
+        Cl_adm.equivalent_to.append(Cl_cf & isAttackedBy.only(isAttackedBy.some(Cl_cf)))
         
 
 onto.save('onto.owl', format = 'ntriples')
