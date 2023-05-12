@@ -4,9 +4,12 @@ import types
 
 
 # Reading input data
-with open('input.json') as f:
+path = 'examples/'
+
+with open(f'{path}input.json') as f:
     data = json.load(f)
 
+onto_path.append(path)
 onto = get_ontology('onto.owl')
 with onto:
 
@@ -63,5 +66,5 @@ with onto:
         Cl_adm.equivalent_to.append(Cl_cf & isAttackedBy.only(isAttackedBy.some(Cl_cf)))
         
 
-onto.save('onto.owl', format = 'ntriples')
+onto.save(f'{path}onto.owl', format = 'ntriples')
 
